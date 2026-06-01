@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+dist
+.env
+.env.local
+data/downloads/*
+!data/downloads/.gitkeep
+npm-debug.log*
+tsconfig.tsbuildinfo

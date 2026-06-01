@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    container_name: clean-asset-downloader
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      DOWNLOAD_DIR: /app/data/downloads
+      MAX_PROXY_BYTES: ${MAX_PROXY_BYTES:-20971520}
+      MAX_DOWNLOAD_BYTES: ${MAX_DOWNLOAD_BYTES:-314572800}
+      DOUYIN_COOKIE: ${DOUYIN_COOKIE:-}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data/downloads:/app/data/downloads

@@ -1,0 +1,12 @@
+.git
+.next
+node_modules
+data/downloads/*
+!data/downloads/.gitkeep
+.env
+.env.*
+!.env.example
+npm-debug.log*
+tsconfig.tsbuildinfo
+Dockerfile
+docker-compose.yml
