@@ -12,6 +12,6 @@ services:
       MAX_DOWNLOAD_BYTES: ${MAX_DOWNLOAD_BYTES:-314572800}
       DOUYIN_COOKIE: ${DOUYIN_COOKIE:-}
     ports:
-      - "3000:3000"
+      - "8080:3000"
     volumes:
       - ./data/downloads:/app/data/downloads

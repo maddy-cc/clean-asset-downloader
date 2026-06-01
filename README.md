@@ -30,6 +30,8 @@ http://localhost:3000
 ./deploy.sh
 ```
 
+默认对外端口为 `8080`，访问 `http://服务器IP:8080`。
+
 可选环境变量：
 
 - `MAX_PROXY_BYTES`：预览代理最大体积，默认 20MB
