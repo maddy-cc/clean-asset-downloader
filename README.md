@@ -27,8 +27,7 @@ http://localhost:3000
 ## Docker 部署
 
 ```bash
-cp .env.example .env
-docker compose up -d --build
+./deploy.sh
 ```
 
 可选环境变量：
