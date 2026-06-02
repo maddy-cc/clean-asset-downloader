@@ -77,8 +77,8 @@ function buildPlayApiCandidates(videoId: string, height?: number, width?: number
   const longEdge = Math.max(height ?? 0, width ?? 0);
   const lines =
     longEdge >= 2160
-      ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-      : [0, 1, 2, 3, 4, 5, 6];
+      ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+      : [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
   for (const ratio of ratios) {
     for (const line of lines) {
@@ -256,7 +256,9 @@ export async function resolveDouyinCdnUrl(
   rawUrl: string,
   options: ResolveDouyinOptions = {}
 ): Promise<ResolvedDouyinMedia | undefined> {
-  if (rawUrl.includes("douyinvod.com") && !isDouyinWatermarkedCdnUrl(rawUrl)) {
+  const shouldResearch = Boolean(options.videoId || options.awemeId);
+
+  if (!shouldResearch && rawUrl.includes("douyinvod.com") && !isDouyinWatermarkedCdnUrl(rawUrl)) {
     const probed = await safeProbeCdnUrl(rawUrl);
     const hints = probed ?? readBitrateHints(rawUrl);
 

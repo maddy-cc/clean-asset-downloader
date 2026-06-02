@@ -8,6 +8,7 @@ import {
 } from "./douyin-media";
 
 type DouyinUrlList = {
+  uri?: string;
   url_list?: string[];
 };
 
@@ -184,6 +185,8 @@ export async function parseDouyinResource(params: {
   }
 
   const title = item.desc?.trim() || item.aweme_id || "抖音视频";
+  const douyinVideoId =
+    video?.play_addr?.uri ?? extractVideoIdFromUrl(picked.url) ?? extractVideoIdFromUrl(videoUrl);
   const assets: Asset[] = [
     {
       id: "asset_1",
@@ -191,7 +194,13 @@ export async function parseDouyinResource(params: {
       url: videoUrl,
       previewUrl,
       filename: buildAssetFilename(title, 0, "video", videoUrl, "video/mp4"),
-      mimeType: "video/mp4"
+      mimeType: "video/mp4",
+      downloadHints: {
+        douyinVideoId,
+        douyinAwemeId: extractAwemeId(params.resolvedUrl, item),
+        douyinHeight: video?.height,
+        douyinWidth: video?.width
+      }
     }
   ];
 

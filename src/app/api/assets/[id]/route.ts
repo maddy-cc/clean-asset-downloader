@@ -50,9 +50,14 @@ export async function POST(
 
     let downloadUrl = asset.url;
 
-    if (post.platform === "douyin") {
-      const awemeId = post.resolvedUrl.match(/\/(?:video|note)\/(\d+)/)?.[1];
-      const resolved = await resolveDouyinCdnUrl(asset.url, { awemeId });
+    if (post.platform === "douyin" && asset.type === "video") {
+      const hints = asset.downloadHints;
+      const resolved = await resolveDouyinCdnUrl(asset.url, {
+        awemeId: hints?.douyinAwemeId ?? post.resolvedUrl.match(/\/(?:video|note)\/(\d+)/)?.[1],
+        videoId: hints?.douyinVideoId,
+        height: hints?.douyinHeight,
+        width: hints?.douyinWidth
+      });
 
       if (resolved) {
         downloadUrl = resolved.url;
@@ -66,9 +71,14 @@ export async function POST(
               referer: DOUYIN_WEB_REFERER,
               "user-agent": DOUYIN_WEB_USER_AGENT
             }
-          : {
-              referer: post.resolvedUrl
-            }
+          : post.platform === "xiaohongshu"
+            ? {
+                referer: "https://www.xiaohongshu.com/",
+                "user-agent": DOUYIN_WEB_USER_AGENT
+              }
+            : {
+                referer: post.resolvedUrl
+              }
     });
 
     if (!response.ok) {

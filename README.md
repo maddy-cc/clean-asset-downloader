@@ -38,9 +38,10 @@ http://localhost:3000
 - `MAX_DOWNLOAD_BYTES`：单个下载最大体积，默认 300MB
 - `DOUYIN_COOKIE`：可选 Cookie，仅放在服务器 `.env` 中，不要提交到 Git
 
-## 抖音最高清（可选）
+## 视频清晰度说明
 
-默认会枚举 `play` 接口并选取体积最大的无水印 CDN 直链。若要与浏览器 Network 完全一致（如 `qs=15`、更高 `br`），在 `.env` 配置登录后的 `DOUYIN_COOKIE`（见 `.env.example`）。
+- **抖音**：解析与下载时会枚举 `play` 接口并按文件体积选最高清无水印直链；下载时会再次探测，避免沿用较低档位。要与浏览器 Network 完全一致（如 `qs=15`、更高 `br`），在 `.env` 配置登录后的 `DOUYIN_COOKIE`（见 `.env.example`）。
+- **小红书 Live**：须用桌面页 SSR 解析；请下载 `*-live.mp4`（多为 1080p 短 MP4）观看动效，`cover.jpg` 仅为静态封面。
 
 ## 后续建议
 

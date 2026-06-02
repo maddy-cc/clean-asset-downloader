@@ -6,9 +6,10 @@ import {
   DownloadCloud,
   FileVideo,
   Link as LinkIcon,
-  Loader2
+  Loader2,
+  X
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Asset = {
   id: string;
@@ -16,6 +17,7 @@ type Asset = {
   url: string;
   previewUrl?: string;
   filename: string;
+  qualityLabel?: string;
 };
 
 type ParsedPost = {
@@ -42,6 +44,7 @@ export function DownloaderApp() {
   const [isParsing, setIsParsing] = useState(false);
   const [downloadingAssetId, setDownloadingAssetId] = useState("");
   const [isBatchDownloading, setIsBatchDownloading] = useState(false);
+  const [videoPreviewAsset, setVideoPreviewAsset] = useState<Asset | null>(null);
 
   const canSubmit = input.trim().length > 0 && !isParsing;
   const hasAssets = Boolean(parsedPost?.assets.length);
@@ -50,9 +53,59 @@ export function DownloaderApp() {
     return `/api/proxy?url=${encodeURIComponent(url)}`;
   }
 
+  useEffect(() => {
+    if (!videoPreviewAsset) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setVideoPreviewAsset(null);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [videoPreviewAsset]);
+
+  function renderAssetPreview(asset: Asset) {
+    if (asset.type === "video") {
+      const poster = asset.previewUrl ? proxyUrl(asset.previewUrl) : undefined;
+
+      return (
+        <button
+          type="button"
+          className="asset-preview asset-preview-video"
+          onClick={() => setVideoPreviewAsset(asset)}
+          aria-label={`预览视频 ${asset.filename}`}
+        >
+          {poster ? (
+            <img src={poster} alt="" loading="lazy" />
+          ) : (
+            <span className="video-preview-placeholder">
+              <FileVideo size={26} />
+            </span>
+          )}
+          <span className="preview-play-badge" aria-hidden="true">
+            <FileVideo size={14} />
+          </span>
+        </button>
+      );
+    }
+
+    const previewSrc = proxyUrl(asset.url);
+
+    return (
+      <a className="asset-preview" href={previewSrc} target="_blank" rel="noreferrer">
+        <img src={previewSrc} alt={asset.filename} loading="lazy" />
+      </a>
+    );
+  }
+
   async function requestParse() {
     setError("");
     setParsedPost(null);
+    setVideoPreviewAsset(null);
     setIsParsing(true);
 
     try {
@@ -248,34 +301,13 @@ export function DownloaderApp() {
               <div className="asset-list">
                 {parsedPost.assets.map((asset) => (
                   <div className="asset-card" key={asset.id}>
-                    <a
-                      className="asset-preview"
-                      href={proxyUrl(asset.previewUrl ?? asset.url)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {asset.previewUrl || asset.type === "image" ? (
-                        <>
-                          <img
-                            src={proxyUrl(asset.previewUrl ?? asset.url)}
-                            alt={asset.filename}
-                            loading="lazy"
-                          />
-                          {asset.type === "video" ? (
-                            <span className="preview-badge">
-                              <FileVideo size={14} />
-                            </span>
-                          ) : null}
-                        </>
-                      ) : (
-                        <span className="video-preview">
-                          <FileVideo size={26} />
-                        </span>
-                      )}
-                    </a>
+                    {renderAssetPreview(asset)}
                     <div className="asset-meta">
                       <strong>{asset.filename}</strong>
-                      <small>{asset.type === "video" ? "视频素材" : "图片素材"}</small>
+                      <small>
+                        {asset.qualityLabel ??
+                          (asset.type === "video" ? "视频素材" : "图片素材")}
+                      </small>
                       <button
                         type="button"
                         className="download-chip"
@@ -304,6 +336,47 @@ export function DownloaderApp() {
           )}
         </div>
       </section>
+
+      {videoPreviewAsset ? (
+        <div
+          className="video-modal-backdrop"
+          role="presentation"
+          onClick={() => setVideoPreviewAsset(null)}
+        >
+          <div
+            className="video-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`预览 ${videoPreviewAsset.filename}`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="video-modal-header">
+              <p className="video-modal-title">{videoPreviewAsset.filename}</p>
+              <button
+                type="button"
+                className="video-modal-close"
+                onClick={() => setVideoPreviewAsset(null)}
+                aria-label="关闭预览"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <video
+              key={videoPreviewAsset.id}
+              className="video-modal-player"
+              controls
+              playsInline
+              autoPlay
+              src={proxyUrl(videoPreviewAsset.url)}
+              poster={
+                videoPreviewAsset.previewUrl
+                  ? proxyUrl(videoPreviewAsset.previewUrl)
+                  : undefined
+              }
+            />
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }

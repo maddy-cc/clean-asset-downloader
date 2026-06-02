@@ -2,6 +2,13 @@ export type Platform = "douyin" | "xiaohongshu" | "weibo" | "generic";
 
 export type AssetType = "image" | "video";
 
+export type AssetDownloadHints = {
+  douyinVideoId?: string;
+  douyinAwemeId?: string;
+  douyinHeight?: number;
+  douyinWidth?: number;
+};
+
 export type Asset = {
   id: string;
   type: AssetType;
@@ -9,6 +16,8 @@ export type Asset = {
   previewUrl?: string;
   filename: string;
   mimeType?: string;
+  qualityLabel?: string;
+  downloadHints?: AssetDownloadHints;
 };
 
 export type ParsedPost = {

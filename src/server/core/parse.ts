@@ -59,23 +59,13 @@ export async function parseSharedInput(input: string): Promise<ParsedPost> {
   }
 
   if (platform === "xiaohongshu") {
-    const parsed = parseXiaohongshuResource({
-      sourceUrl,
-      resolvedUrl: resolved.resolvedUrl,
-      html: resolved.html
-    });
-
-    if (parsed) {
-      return parsed;
-    }
-
-    const desktopResponse = await fetchWithTimeout(resolved.resolvedUrl, {
+    const desktopResponse = await fetchWithTimeout(sourceUrl, {
       headers: XHS_DESKTOP_HEADERS
     });
 
     if (desktopResponse.ok) {
       const desktopHtml = await desktopResponse.text();
-      const desktopParsed = parseXiaohongshuResource({
+      const desktopParsed = await parseXiaohongshuResource({
         sourceUrl,
         resolvedUrl: desktopResponse.url || resolved.resolvedUrl,
         html: desktopHtml
@@ -84,6 +74,16 @@ export async function parseSharedInput(input: string): Promise<ParsedPost> {
       if (desktopParsed) {
         return desktopParsed;
       }
+    }
+
+    const parsed = await parseXiaohongshuResource({
+      sourceUrl,
+      resolvedUrl: resolved.resolvedUrl,
+      html: resolved.html
+    });
+
+    if (parsed) {
+      return parsed;
     }
   }
 

@@ -9,9 +9,11 @@ import {
 const ALLOWED_HOST_SUFFIXES = [
   "sinaimg.cn",
   "douyinpic.com",
+  "douyinvod.com",
   "xhscdn.com",
   "xiaohongshu.com",
-  "douyinstatic.com"
+  "douyinstatic.com",
+  "ci.xiaohongshu.com"
 ];
 const MAX_PROXY_BYTES = parseByteLimit(process.env.MAX_PROXY_BYTES, 20 * 1024 * 1024);
 
@@ -40,12 +42,17 @@ function refererFor(url: string): string {
 
   if (
     hostname.includes("douyinpic.com") ||
-    hostname.includes("douyinstatic.com")
+    hostname.includes("douyinstatic.com") ||
+    hostname.includes("douyinvod.com")
   ) {
     return "https://www.douyin.com/";
   }
 
-  if (hostname.includes("xhscdn.com") || hostname.includes("xiaohongshu.com")) {
+  if (
+    hostname.includes("xhscdn.com") ||
+    hostname.includes("xiaohongshu.com") ||
+    hostname.includes("ci.xiaohongshu.com")
+  ) {
     return "https://www.xiaohongshu.com/";
   }
 
@@ -72,11 +79,6 @@ export async function GET(request: Request) {
     }
 
     const contentType = response.headers.get("content-type") ?? "application/octet-stream";
-    const normalizedContentType = contentType.split(";")[0].trim().toLowerCase();
-
-    if (normalizedContentType.startsWith("video/")) {
-      return NextResponse.json({ error: "预览代理不支持视频资源" }, { status: 400 });
-    }
 
     assertContentLengthWithinLimit(response, MAX_PROXY_BYTES);
 
